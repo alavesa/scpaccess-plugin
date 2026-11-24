@@ -1,0 +1,31 @@
+name: ScpAccess
+version: '${version}'
+main: fi.alavesa.scpaccess.ScpAccessPlugin
+api-version: '26.3'
+description: SCP-style keycards, keycard readers, doors and player sensors from Blockbench models, connected to SCP-079
+author: Piia Alavesa
+load: POSTWORLD
+softdepend: [SCP079]
+
+commands:
+  scpaccess:
+    description: Keycards, readers, doors and player sensors
+    usage: /scpaccess help
+    aliases: [sa, access]
+
+permissions:
+  scpaccess.admin:
+    description: Every /scpaccess command, the link tool, removing objects
+    default: op
+    children:
+      scpaccess.place: true
+      scpaccess.use: true
+  scpaccess.place:
+    description: Place readers, doors and sensors from items
+    default: true
+  scpaccess.use:
+    description: Swipe keycards on readers
+    default: true
+  scpaccess.sensor.ignore:
+    description: Player sensors do not notice this player
+    default: false

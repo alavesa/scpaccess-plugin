@@ -1,0 +1,38 @@
+# Player-facing messages (MiniMessage). An empty message is not sent. {prefix} works everywhere.
+prefix: "<dark_aqua>[Access]</dark_aqua> "
+no-permission: "<prefix><red>You may not do that."
+removed: "<prefix><gray>Removed <white><name></white>."
+
+place:
+  door: "<prefix><gray>Placed <white><name></white>."
+  reader: "<prefix><gray>Placed a reader that needs <white><level></white>. Link it to doors with the link tool."
+  sensor: "<prefix><gray>Placed the sensor <white><name></white>."
+  no-space: "<prefix><red>There is no room for that here."
+  occupied: "<prefix><red>Something is in the way."
+  protected: "<prefix><red>You cannot build here."
+  reader-wall: "<prefix><red>Readers go on walls."
+  no-model: "<prefix><red>That model could not be loaded - see the console."
+  unknown-type: "<prefix><red>The door type <white><type></white> no longer exists."
+
+door:
+  protected: "<prefix><gray>That is a door. Remove it with the link tool (shift + left-click) or /scpaccess remove."
+
+reader:
+  granted: "<prefix><green>Access granted."
+  denied: "<prefix><red>Access denied: you need <white><level></white>."
+  locked: "<prefix><red>Access denied: the door is locked."
+  not-linked: "<prefix><red>This reader is not connected to a door."
+  need-card: "<prefix><gray>Hold a keycard (<white><level></white> or higher) and right-click."
+
+link:
+  look-at: "<prefix><gray>Look at a reader or a door."
+  reader-selected: "<prefix><gray>Reader <white>#<id></white> (<level>, <count> door(s)) selected. Right-click the doors it should open."
+  select-first: "<prefix><gray>Right-click a reader first."
+  linked: "<prefix><green>Linked <white><name></white> to reader #<id> (<count> door(s))."
+  unlinked: "<prefix><yellow>Unlinked <white><name></white> from reader #<id> (<count> door(s))."
+  cleared: "<prefix><gray>Reader forgotten."
+  is-sensor: "<prefix><gray>That is the sensor <white><name></white>."
+
+mode:
+  breach-announce: "<prefix><red><bold>CONTAINMENT BREACH.</bold> <gray>SCP-079 is no longer contained."
+  contained-announce: "<prefix><green>Containment restored."

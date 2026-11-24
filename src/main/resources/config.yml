@@ -1,0 +1,82 @@
+# ScpAccess - SCP-style keycards, readers, doors and player sensors.
+# Mode (contained / breach) is switched with /scpaccess mode and saved in data.json; it starts CONTAINED.
+
+doors:
+  # Seconds a door stays open after a keycard (or SCP-079) opened it. 0 = until closed by hand.
+  stay-open-seconds: 5
+  # A door that wants to close waits while someone stands in it.
+  wait-for-people: true
+
+readers:
+  # How long the result (GRANTED / DENIED) stays on the screen and the lamp, in ticks.
+  result-ticks: 50
+  # The model has no "swipe" clip: ticks before the result is shown.
+  swipe-ticks: 12
+  # The small text display on the reader (needs the pack's core/text shader for the colours and scan lines).
+  screen: true
+  screen-scale: 0.22
+  # A short coloured screen flash (post effect) for the player who swiped.
+  screen-flash: true
+
+sensors:
+  radius: 6.0
+  interval-ticks: 10
+  # How often a sensor that keeps seeing someone refreshes SCP-079's memory.
+  refresh-seconds: 5
+  # SCP-079 may say who the sensor saw (otherwise only "someone").
+  report-names: true
+  ignore-gamemodes: [SPECTATOR]
+
+# What SCP-079 may do. true = only while the mode is BREACH.
+scp079:
+  open-needs-breach: true
+  close-needs-breach: true
+  lock-needs-breach: false
+
+breach:
+  broadcast: true
+  alarm: true
+  flash: true
+
+placement:
+  # Ask protection plugins (WorldGuard etc.) through a block place event.
+  fire-block-events: true
+  free-position: false
+
+display:
+  view-range: 1.5
+
+animation:
+  # The client animates between poses sent every this many ticks.
+  step-ticks: 2
+
+# Sound events from the resource pack (see plugins/ScpAccess/sounds/ to replace them with your own .ogg files).
+# Any vanilla sound id works as well. Empty = silent.
+sounds:
+  reader-swipe: scpaccess:reader.swipe
+  reader-granted: scpaccess:reader.granted
+  reader-denied: scpaccess:reader.denied
+  door-open: scpaccess:door.open
+  door-close: scpaccess:door.close
+  door-locked: scpaccess:door.locked
+  sensor-detect: scpaccess:sensor.detect
+
+# The resource pack is only WRITTEN to plugins/ScpAccess/pack/ScpAccess-pack.zip - you install it yourself.
+pack:
+  description: "ScpAccess"
+  # 26.3 = 97
+  format:
+    min: 97
+    max: 97
+  post-effects: true
+  # The core/text shader gives the reader screens their colours and scan lines. Minecraft runs only ONE
+  # copy of a core shader (the top pack's), so it is built on top of the first of these packs that exists
+  # (paths relative to plugins/) to keep their HUDs working. false = no shader, plain white screen text.
+  text-shader: true
+  text-shader-sources:
+    SCP079: SCP079/SCP079-pack.zip
+    Intercom: Intercom/Intercom-pack.zip
+    IdCards: IdCards/idcards-pack.zip
+    Radio: Radio/radio-pack.zip
+    SuperbVehicles: SuperbVehicles/pack/SuperbVehicles-hud.zip
+    CCTV: CCTV/cctv-pack.zip
