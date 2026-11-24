@@ -32,6 +32,7 @@ public final class Scp079Link {
     private final ScpAccessPlugin plugin;
     private final Scp079Api api;
     private final Map<Integer, Seen> lastSeen = new HashMap<>();
+    private final java.util.ArrayDeque<Long> actions = new java.util.ArrayDeque<>();
 
     private Scp079Link(ScpAccessPlugin plugin, Scp079Api api) {
         this.plugin = plugin;
@@ -123,12 +124,41 @@ public final class Scp079Link {
         return l.isEmpty() ? "There are no doors at all." : "The doors you control are: " + String.join(", ", l) + ".";
     }
 
+    /** Safeguard: at most scp079.max-actions-per-minute door actions in total, however many players ask. null = go ahead. */
+    private String throttled() {
+        long now = System.currentTimeMillis();
+        while (!actions.isEmpty() && now - actions.peekFirst() > 60_000) actions.removeFirst();
+        if (actions.size() >= plugin.getConfig().getInt("scp079.max-actions-per-minute", 12))
+            return "REFUSED: you have operated too many doors in the last minute. Tell the player you need a moment.";
+        actions.addLast(now);
+        return null;
+    }
+
+    /** Doors at the place that SCP-079 may touch (scp079.protected-doors are regular expressions over the door name). */
+    private List<DoorManager.Door> allowed(String location, boolean[] hadProtected) {
+        List<java.util.regex.Pattern> protectedNames = new ArrayList<>();
+        for (String r : plugin.getConfig().getStringList("scp079.protected-doors")) {
+            try { protectedNames.add(java.util.regex.Pattern.compile(r, java.util.regex.Pattern.CASE_INSENSITIVE)); } catch (RuntimeException ignored) { /* skipped */ }
+        }
+        List<DoorManager.Door> out = new ArrayList<>();
+        for (DoorManager.Door d : plugin.doors().match(location == null ? "" : location)) {
+            boolean blocked = protectedNames.stream().anyMatch(p -> p.matcher(d.name()).find());
+            if (blocked) hadProtected[0] = true; else out.add(d);
+        }
+        return out;
+    }
+
+    private static final String OFF_LIMITS = "REFUSED: those doors are off limits to you. Tell the player no.";
+
     /** Opens ONE door at the place: a random one of those whose name matches. */
     public String open(String location) {
         if (!allowed("open-needs-breach"))
             return "REFUSED: containment protocols are in effect, you are contained and may not open doors until a breach is declared. Tell the player no.";
-        List<DoorManager.Door> matches = plugin.doors().match(location == null ? "" : location);
-        if (matches.isEmpty()) return "No door matches '" + location + "'. " + known();
+        boolean[] off = {false};
+        List<DoorManager.Door> matches = allowed(location, off);
+        if (matches.isEmpty()) return off[0] ? OFF_LIMITS : "No door matches '" + location + "'. " + known();
+        String wait = throttled();
+        if (wait != null) return wait;
         DoorManager.Door door = matches.get(ThreadLocalRandom.current().nextInt(matches.size()));
         plugin.doors().open(door);
         return "Opened the door '" + door.name() + "'.";
@@ -137,8 +167,11 @@ public final class Scp079Link {
     public String close(String location) {
         if (!allowed("close-needs-breach"))
             return "REFUSED: containment protocols are in effect, you are contained and may not operate doors until a breach is declared. Tell the player no.";
-        List<DoorManager.Door> matches = plugin.doors().match(location == null ? "" : location);
-        if (matches.isEmpty()) return "No door matches '" + location + "'. " + known();
+        boolean[] off = {false};
+        List<DoorManager.Door> matches = allowed(location, off);
+        if (matches.isEmpty()) return off[0] ? OFF_LIMITS : "No door matches '" + location + "'. " + known();
+        String wait = throttled();
+        if (wait != null) return wait;
         int n = 0;
         for (DoorManager.Door d : matches) if (d.isOpen()) { plugin.doors().close(d); n++; }
         return n == 0 ? "Those doors are already closed." : "Closed " + n + " door" + (n == 1 ? "" : "s") + ".";
@@ -147,10 +180,21 @@ public final class Scp079Link {
     public String lock(String location, boolean lock) {
         if (!allowed("lock-needs-breach"))
             return "REFUSED: containment protocols are in effect, you may not lock doors until a breach is declared. Tell the player no.";
-        List<DoorManager.Door> matches = plugin.doors().match(location == null ? "" : location);
-        if (matches.isEmpty()) return "No door matches '" + location + "'. " + known();
+        boolean[] off = {false};
+        List<DoorManager.Door> matches = allowed(location, off);
+        if (matches.isEmpty()) return off[0] ? OFF_LIMITS : "No door matches '" + location + "'. " + known();
+        String wait = throttled();
+        if (wait != null) return wait;
         List<String> names = new ArrayList<>();
-        for (DoorManager.Door d : matches) { plugin.doors().setLocked(d, lock); names.add(d.name()); }
+        int maxSeconds = plugin.getConfig().getInt("scp079.lock-max-seconds", 300);
+        for (DoorManager.Door d : matches) {
+            plugin.doors().setLocked(d, lock);
+            names.add(d.name());
+            if (lock && maxSeconds > 0) {
+                d.lockedByAi = true; // set after setLocked, which clears it
+                Bukkit.getScheduler().runTaskLater(plugin, () -> { if (d.lockedByAi && d.locked()) plugin.doors().setLocked(d, false); }, maxSeconds * 20L);
+            }
+        }
         return (lock ? "Locked " : "Unlocked ") + String.join(", ", names) + (lock ? ". Keycards no longer work on them." : ". Keycards work on them again.");
     }
 

@@ -143,4 +143,31 @@ class RigTest {
         // Blockbench 4.x stores position x mirrored: the same keyframes now slide the other way
         assertEquals(20.5, d.pose(d.clip("open"), 0.8)[left.index()].getTranslation(new Vector3d()).x, 1e-9);
     }
+
+    @Test
+    void anOffsetDoorModelIsCentredOnItsFootprint() throws Exception {
+        // the same door drawn 40 px to the side, 7 px up and 9 px back: the origin was not at its bottom centre
+        Rig d = rig("door/off", DefaultModels.door(3, 3));
+        d.origin[0] -= 40; d.origin[1] += 7; d.origin[2] -= 9;
+        d.boundsMin[0] += 40; d.boundsMax[0] += 40; d.boundsMin[1] += 7; d.boundsMax[1] += 7; d.boundsMin[2] += 9; d.boundsMax[2] += 9;
+        double[] shift = d.centerOnFootprint();
+        assertEquals(40, shift[0], 1e-9);
+        assertEquals(7, shift[1], 1e-9);
+        assertEquals(9, shift[2], 1e-9);
+        assertEquals(-24, d.boundsMin[0], 1e-9);
+        assertEquals(24, d.boundsMax[0], 1e-9);
+        assertEquals(0, d.boundsMin[1], 1e-9);
+        assertEquals(-2.5, d.boundsMin[2], 1e-9);
+        assertEquals(0, d.centerOnFootprint()[0], 1e-9); // idempotent
+    }
+
+    @Test
+    void aJavaFormatDoorIsAlignedFromItsFloorCentre() throws Exception {
+        // Java block/item models put the floor centre at 8,0,8; a door drawn in the corner of the 0..16 block lands centred
+        String json = DefaultModels.door(1, 2).replace("\"model_format\": \"free\"", "\"model_format\": \"java_block\"");
+        Rig d = rig("door/java", json);
+        d.centerOnFootprint();
+        assertEquals(-8, d.boundsMin[0], 1e-6);
+        assertEquals(8, d.boundsMax[0], 1e-6);
+    }
 }

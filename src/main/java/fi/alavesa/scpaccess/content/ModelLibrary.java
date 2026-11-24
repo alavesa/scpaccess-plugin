@@ -93,6 +93,9 @@ public final class ModelLibrary {
                 + "# Groups named leaf*/anything with an 'open' and 'close' animation move; groups named state_closed, state_open\n"
                 + "# and state_locked are shown only in that state. Origin = bottom centre of the door, front = north (-Z).\n"
                 + "size: " + size + "\n"
+                + "# auto = the model is moved so that its bottom centre sits on the door's blocks (barriers), whatever origin it was\n"
+                + "# drawn around. origin = use the model exactly as authored (origin at the bottom centre, front = north).\n"
+                + "# align: auto\n"
                 + "# Seconds the door stays open after a keycard opened it (empty = config.yml doors.stay-open-seconds).\n"
                 + "# stay-open-seconds: 6\n"
                 + "# Sounds of this type (sound event ids from the pack); empty = the plugin-wide ones.\n"
@@ -160,6 +163,16 @@ public final class ModelLibrary {
         }
         Rig rig = read("door/" + id, file);
         if (rig == null) return;
+        // The barriers fill exactly width x height blocks around the door's bottom centre. A model that was not authored
+        // with its origin there (corner origin, Java block coordinates, off-centre) is moved onto them.
+        if (!yaml.getString("align", "auto").equalsIgnoreCase("origin")) {
+            double[] shift = rig.centerOnFootprint();
+            if (Math.abs(shift[0]) > 0.5 || Math.abs(shift[1]) > 0.5 || Math.abs(shift[2]) > 0.5)
+                warnings.add(String.format(Locale.ROOT, "[doortypes/%s/door.bbmodel] was %.1f / %.1f / %.1f px off the door's bottom centre and is moved onto its blocks (type.yml: 'align: origin' keeps the model exactly as drawn)", dir.getFileName(), shift[0], shift[1], shift[2]));
+        }
+        double drawnW = (rig.boundsMax[0] - rig.boundsMin[0]) / 16, drawnH = (rig.boundsMax[1] - rig.boundsMin[1]) / 16;
+        if (Math.abs(drawnW - wh[0]) > 0.35 || Math.abs(drawnH - wh[1]) > 0.35)
+            warnings.add(String.format(Locale.ROOT, "[doortypes/%s/door.bbmodel] is %.1f x %.1f blocks but the type is %s - the barriers (the part you cannot walk through) are always %s", dir.getFileName(), drawnW, drawnH, size, size));
         Map<String, String> sounds = new LinkedHashMap<>();
         var section = yaml.getConfigurationSection("sounds");
         if (section != null) for (String k : section.getKeys(false)) sounds.put(k, section.getString(k, ""));

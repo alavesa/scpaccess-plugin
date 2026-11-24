@@ -32,6 +32,12 @@ scp079:
   open-needs-breach: true
   close-needs-breach: true
   lock-needs-breach: false
+  # Safeguards: SCP-079 can never touch doors whose name matches one of these regular expressions (case-insensitive),
+  # e.g. ["vault", "^Server Room"]. It may only operate this many doors in total per minute, and a lock it sets is
+  # lifted again after this many seconds (0 = never; locks made by hand with /scpaccess door lock never expire).
+  protected-doors: []
+  max-actions-per-minute: 12
+  lock-max-seconds: 300
 
 breach:
   broadcast: true

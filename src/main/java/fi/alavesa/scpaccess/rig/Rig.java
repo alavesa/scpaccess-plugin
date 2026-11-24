@@ -213,4 +213,25 @@ public final class Rig {
         }
         return out;
     }
+
+    /**
+     * Moves the model's origin to the bottom centre of what is drawn at rest: horizontal centre on the anchor (the middle
+     * of the door's footprint), depth centre on the anchor's block, lowest point on the floor. Door models are authored in
+     * all kinds of ways (corner at the origin, Java block coordinates, off-centre); this makes the picture sit on the
+     * barrier blocks whatever the author did.
+     *
+     * @return the shift in px that was applied to the origin (0,0,0 when it already fitted or nothing is drawn)
+     */
+    public double[] centerOnFootprint() {
+        if (icon == null) return new double[] {0, 0, 0};
+        double[] shift = {(boundsMin[0] + boundsMax[0]) / 2, boundsMin[1], (boundsMin[2] + boundsMax[2]) / 2};
+        for (int i = 0; i < 3; i++) {
+            origin[i] += shift[i];
+            boundsMin[i] -= shift[i];
+            boundsMax[i] -= shift[i];
+            for (double[][] h : hitboxes) { h[0][i] -= shift[i]; h[1][i] -= shift[i]; }
+        }
+        for (double[] l : locators.values()) for (int i = 0; i < 3; i++) l[i] -= shift[i];
+        return shift;
+    }
 }

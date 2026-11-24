@@ -45,6 +45,8 @@ public final class DoorManager {
         State state = State.CLOSED;
         BukkitTask autoClose;
         boolean wantOpen, wantClose;
+        /** True while the lock was set by SCP-079 (it is lifted again after scp079.lock-max-seconds). */
+        public boolean lockedByAi;
 
         Door(Data.DoorData data) { this.data = data; }
 
@@ -286,6 +288,7 @@ public final class DoorManager {
     }
 
     public void setLocked(Door door, boolean locked) {
+        door.lockedByAi = false; // a lock set or lifted by hand is no longer SCP-079's
         if (door.data.locked == locked) return;
         door.data.locked = locked;
         plugin.markDirty();

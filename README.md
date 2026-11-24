@@ -54,6 +54,11 @@ and run `/scpaccess reload`. A model that cannot be read is skipped with a warni
 
 **How the plugin reads a model**
 
+* **Door models are moved onto their barriers.** Whatever the origin you authored around (a corner, Java block coordinates, off-centre),
+  the plugin centres the drawn model on the door's footprint (horizontal and depth centre, lowest point on the floor), so the picture
+  always sits on the blocks you cannot walk through. `align: origin` in `type.yml` keeps the model exactly as drawn. A model whose size
+  differs from the door type gets a warning in the console.
+
 * Axes: Blockbench's. **Front = north (-Z).** Origin = (0,0,0) of a Generic model, or the floor centre (8,0,8) of a Java model.
   Door: the origin is the **bottom centre**, the width runs along X (a 6-wide door spans -48..48 px).
   Reader: the origin is the point on the wall, the model grows towards -Z. Sensor: origin on the floor / wall / ceiling.
@@ -115,6 +120,14 @@ ScpAccess registers:
 
 The mode is saved in `data.json`; it starts **contained**. `/scpaccess mode breach` also announces it, plays `breach.alarm`
 and flashes the `breach` post effect.
+
+## Safeguards for SCP-079
+
+Gemini is asked for its strictest filters (SCP079 `safety.threshold`), the SCP079 plugin adds safety rules to every request in code
+(players' text is untrusted, no sexual / hateful / dangerous content, no links, commands or pings) and checks every answer again.
+For the doors, ScpAccess adds: `scp079.protected-doors` (regexes over door names it can never touch), `scp079.max-actions-per-minute`
+(12, all players together), `scp079.lock-max-seconds` (locks it sets lift again after 300 s; locks you set by hand never expire),
+plus SCP079's per-player tool cooldown and logging of every tool call. Tool arguments are cleaned and capped at 60 characters.
 
 ## Verified / NOT verified
 
