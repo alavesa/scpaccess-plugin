@@ -62,6 +62,9 @@ public final class Scp079Link {
         api.registerTool(plugin, new Scp079Api.Tool("unlock_door",
             "Unlocks the doors at a place so that keycards work on them again.",
             params("location", "The place the player named"), (p, a) -> lock(a.get("location"), false)));
+        api.registerTool(plugin, new Scp079Api.Tool("make_announcement",
+            "Makes an announcement on the facility intercom that everyone hears. Use only when a player asks you to announce something. Only possible during a containment breach.",
+            params("message", "What to announce: one or two short sentences, in your own voice"), (p, a) -> announce(a.get("message"))));
         api.registerTool(plugin, new Scp079Api.Tool("who_is_nearby",
             "Reports which player sensors currently see someone, and where someone was seen recently. Use when asked whether anyone is nearby or where people are.",
             Map.of(), (p, a) -> nearby(p)));
@@ -92,6 +95,7 @@ public final class Scp079Link {
         List<String> sensors = new ArrayList<>();
         for (SensorManager.Sensor s : plugin.sensors().all()) sensors.add(s.name());
         if (!sensors.isEmpty()) out.append("Player sensors watch: ").append(String.join(", ", sensors.subList(0, Math.min(40, sensors.size())))).append(".\n");
+        if (breach) out.append("You may also make announcements on the intercom when a player asks.\n");
         out.append("Use your tools to act, and only say you did something when the tool reported it. After using a tool, answer with one short sentence.");
         return out.toString();
     }
@@ -149,6 +153,17 @@ public final class Scp079Link {
     }
 
     private static final String OFF_LIMITS = "REFUSED: those doors are off limits to you. Tell the player no.";
+
+    /** Breach only, like the doors; then the SCP079 plugin applies the intercom's own cooldown and cleans the text. */
+    public String announce(String message) {
+        if (!allowed("announce-needs-breach"))
+            return "REFUSED: containment protocols are in effect, you are contained and may not use the intercom until a breach is declared. Tell the player no.";
+        if (message == null || message.isBlank()) return "Nothing to announce: ask the player what to say.";
+        String wait = throttled();
+        if (wait != null) return wait;
+        String problem = api.announce(message);
+        return problem == null ? "The announcement went out on the intercom." : "The intercom did not take it: " + problem + ".";
+    }
 
     /** Opens ONE door at the place: a random one of those whose name matches. */
     public String open(String location) {

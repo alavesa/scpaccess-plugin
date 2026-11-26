@@ -3,7 +3,7 @@ plugins {
 }
 
 group = "fi.alavesa"
-version = "1.0.1"
+version = "1.1.0"
 
 // Paper publishes the 26.x API as <mc>.build.<n>-<channel> (there is no -R0.1-SNAPSHOT any more).
 // Pinned to an exact stable build so the build is reproducible; bump the build number to move forward.
@@ -19,10 +19,10 @@ dependencies {
     // so there is no shadow plugin: the plain `jar` task output is the plugin.
     compileOnly(paperApi)
     // SCP-079 (soft dependency): only its public api package is used, behind link/Scp079Link
-    compileOnly(files("libs/SCP079-1.3.0.jar"))
+    compileOnly(files("libs/SCP079-1.3.2.jar"))
 
     testImplementation(paperApi)
-    testImplementation(files("libs/SCP079-1.3.0.jar"))
+    testImplementation(files("libs/SCP079-1.3.2.jar"))
     testImplementation(platform("org.junit:junit-bom:5.11.4"))
     testImplementation("org.junit.jupiter:junit-jupiter")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")

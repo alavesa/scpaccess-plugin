@@ -112,7 +112,9 @@ ScpAccess registers:
   Only in **breach** mode; contained = refused (it says no in character).
 * `close_door(location)` - the same, breach only.
 * `lock_door(location)` / `unlock_door(location)` - all doors at the place; a locked door ignores keycards (the reader shows
-  LOCKED). Allowed in both modes (`scp079.lock-needs-breach: true` makes it breach only).
+  LOCKED). Breach only.
+* `make_announcement(message)` - an announcement on the Intercom banner, signed by SCP-079. Breach only, cleaned like any answer, and
+  held to Intercom's own `announcement.cooldown-seconds` (SCP-079 is one sender), plus the per-player and per-minute tool limits.
 * `who_is_nearby()` - the sensors that see someone now, and where someone was seen how long ago.
 * context: the mode, the door places and the sensor places it knows.
 * notes: every time a sensor notices someone ("The player sensor at 'Hallway B' detected Piia", with its age) - kept for

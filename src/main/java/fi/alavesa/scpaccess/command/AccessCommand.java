@@ -350,6 +350,7 @@ public final class AccessCommand implements CommandExecutor, TabCompleter {
                     case "lock_door" -> link.lock(arg, true);
                     case "unlock_door" -> link.lock(arg, false);
                     case "who_is_nearby" -> link.nearby(s instanceof Player p ? p : null);
+                    case "make_announcement" -> link.announce(arg);
                     default -> "unknown tool";
                 };
                 say(s, "079 tool " + a[2] + " -> " + out);
