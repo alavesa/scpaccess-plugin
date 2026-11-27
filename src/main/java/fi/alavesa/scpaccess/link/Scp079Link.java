@@ -132,7 +132,7 @@ public final class Scp079Link {
     private String throttled() {
         long now = System.currentTimeMillis();
         while (!actions.isEmpty() && now - actions.peekFirst() > 60_000) actions.removeFirst();
-        if (actions.size() >= plugin.getConfig().getInt("scp079.max-actions-per-minute", 12))
+        if (actions.size() >= plugin.getConfig().getInt("scp079.max-actions-per-minute", 20))
             return "REFUSED: you have operated too many doors in the last minute. Tell the player you need a moment.";
         actions.addLast(now);
         return null;

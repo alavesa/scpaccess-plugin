@@ -38,7 +38,7 @@ scp079:
   # e.g. ["vault", "^Server Room"]. It may only operate this many doors in total per minute, and a lock it sets is
   # lifted again after this many seconds (0 = never; locks made by hand with /scpaccess door lock never expire).
   protected-doors: []
-  max-actions-per-minute: 12
+  max-actions-per-minute: 20
   lock-max-seconds: 300
 
 breach:
