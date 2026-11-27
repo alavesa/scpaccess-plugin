@@ -77,10 +77,14 @@ pack:
     min: 97
     max: 97
   post-effects: true
-  # The core/text shader gives the reader screens their colours and scan lines. Minecraft runs only ONE
-  # copy of a core shader (the top pack's), so it is built on top of the first of these packs that exists
-  # (paths relative to plugins/) to keep their HUDs working. false = no shader, plain white screen text.
-  text-shader: true
+  # OFF by default. The core/text shader gives the reader screens their colours and CRT scan lines, but Minecraft runs only ONE
+  # copy of a core shader (the top pack's): with this on, the ScpAccess pack replaces the text shader of SCP-079's captions,
+  # the Intercom banner and the other HUD packs unless it is built on top of theirs (text-shader-sources, below) AND
+  # sits above them. If SCP-079's captions or the intercom banner stop working after installing the pack, this is the
+  # first thing to check. Off = plain coloured screen text and no shader in the pack at all.
+  core-text-shader: false
+  # Only used with core-text-shader: true. The shader is built on top of the first of these packs that exists (paths
+  # relative to plugins/), most complete first, and rebuilt on /scpaccess reload; rebuild it after those plugins rebuild theirs.
   text-shader-sources:
     SCP079: SCP079/SCP079-pack.zip
     Intercom: Intercom/Intercom-pack.zip

@@ -30,13 +30,14 @@ The plugin never sends a pack. It **writes** `plugins/ScpAccess/pack/ScpAccess-p
   `sensor.detect`, `breach.alarm` (namespace `scpaccess`). Without your own files they point at vanilla sounds. **Put your
   own `.ogg` (Ogg Vorbis) in `plugins/ScpAccess/sounds/<event>.ogg`**, e.g. `reader.granted.ogg`, and rebuild.
 * two post effects `scpaccess:granted` / `denied` (screen tint + scan lines for the player who swiped) and `breach`
-* a **core/text shader**: the reader screens are text displays whose colour is a marker (#F3ACxx); the shader draws them
+* an optional **core/text shader** (`pack.core-text-shader: true`): the reader screens are text displays whose colour is a marker (#F3ACxx); the shader draws them
   full-bright in cyan / green / red / amber with CRT scan lines and a flicker driven by the server (no clock uniform).
 
 **Shader note.** Minecraft runs only one copy of a core shader: the top pack's. So the shader is built on top of the first
 of the other plugins' packs that exists (`pack.text-shader-sources` in config.yml: SCP079, Intercom, IdCards, Radio,
 SuperbVehicles, CCTV) and keeps their HUDs working. Order the packs so that the one with the most hooks is on top.
-`pack.text-shader: false` ships no shader (plain white screen text).
+`pack.core-text-shader` is **off by default** (screens then use plain coloured text and the pack carries no core shader, so it can never
+disturb SCP-079's captions or the Intercom banner). Turn it on only when the ScpAccess pack is the topmost one.
 
 ## Your own Blockbench models
 

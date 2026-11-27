@@ -378,7 +378,11 @@ public final class ReaderManager {
 
     private void render(Reader r) {
         if (r.screen == null || !r.screen.isValid()) return;
-        TextColor color = TextColor.color(243, 172, ((r.phase & 63) << 2) | (r.mode & 3));
+        // With the pack's core/text shader the colour is a marker the shader turns into the real colour and scan lines;
+        // without it (the default) the screen simply uses the real colours.
+        TextColor color = plugin.getConfig().getBoolean("pack.core-text-shader", false)
+            ? TextColor.color(243, 172, ((r.phase & 63) << 2) | (r.mode & 3))
+            : switch (r.mode & 3) { case 1 -> TextColor.color(0x40FF66); case 2 -> TextColor.color(0xFF3830); case 3 -> TextColor.color(0xFFB826); default -> TextColor.color(0x4DD9FF); };
         Component text = r.line2.isEmpty() ? Component.text(r.line1, color) : Component.text(r.line1, color).append(Component.newline()).append(Component.text(r.line2, color));
         r.screen.text(text);
     }

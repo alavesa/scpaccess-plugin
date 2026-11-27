@@ -163,7 +163,7 @@ public final class ScpAccessPlugin extends JavaPlugin {
         var section = cfg.getConfigurationSection("pack.text-shader-sources");
         if (section != null) for (String name : section.getKeys(false))
             sources.add(Map.entry(name, new File(getDataFolder().getParentFile(), section.getString(name, ""))));
-        PackBuilder.Result result = PackBuilder.build(library, getDataFolder().toPath().resolve("sounds"), cfg.getBoolean("pack.text-shader", true), sources,
+        PackBuilder.Result result = PackBuilder.build(library, getDataFolder().toPath().resolve("sounds"), cfg.getBoolean("pack.core-text-shader", false), sources,
             cfg.getInt("pack.format.min", 97), cfg.getInt("pack.format.max", 97), cfg.getString("pack.description", "ScpAccess"), cfg.getBoolean("pack.post-effects", true));
         Files.createDirectories(getDataFolder().toPath().resolve("sounds"));
         Path zip = packFile();
